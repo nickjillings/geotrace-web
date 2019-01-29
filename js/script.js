@@ -56,6 +56,23 @@ function convertBearingToText(b) {
     }
 }
 
+function drawSpeedChart(t) {
+    var data = google.visualization.arrayToDataTable(t);
+
+    var options = {
+      title: 'Speed',
+      curveType: 'function',
+      legend: { position: 'bottom' }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById('speed_chart'));
+
+    chart.draw(data, options);
+}
+
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawSpeedChart);
+
 var app = angular.module("SpeedTracer", []);
 
 app.controller("window", ["$scope", "$window", "$rootScope", function ($s, $w, $r) {
@@ -78,28 +95,33 @@ app.controller("trace", ["$scope", "$window", "$rootScope", "$interval", functio
     $s.distance = 0;
     $s.speed = 0;
     $s.direction = 0;
-    var location, trace;
-    var svg=d3.select("svg");
-    var g=svg.append("g").attr("transform","translate(172.5,150)");
-    var domain = [0,100];
-
-    var gg = viz.gg()
-      .domain(domain)
-      .outerRadius(150)
-      .innerRadius(30)
-      .value(0.5*(domain[1]+domain[0]))
-      .duration(500);
-
-    gg.defs(svg);
-    g.call(gg);
-
-    d3.select(self.frameElement).style("height", "700px");
+    var speedHistory = [];
+    var location;
     function reset()
     {
         $s.distance = 0;
         $s.speed = 0;
         $s.direction = 0;
         location = undefined;
+        write_index = 0;
+    }
+    function pushNewPosition(s, t)
+    {
+        speedHistory.push({
+            s: s,
+            t: new Date(t)
+        });
+        if (speedHistory.length > 128) {
+            speedHistory.splice(0,1);
+        }
+    }
+    function convertToTable() {
+        var tw = [['Time', 'Speed']];
+        var d = new Date();
+        speedHistory.forEach(function(entry) {
+            tw.push([entry.t, entry.s]);
+        });
+        return tw;
     }
     $r.$on("start-tracer", function() {
         trace = $i(function(){
@@ -118,13 +140,16 @@ app.controller("trace", ["$scope", "$window", "$rootScope", "$interval", functio
                     // Now get the speed in MPH
                     var deltaTime = pos.timestamp - location.timestamp;
                     $s.speed = (d*3600000) / deltaTime;
-                    gg.setNeedle($s.speed);
 
                     // Now get the bearing
                     var brng = calculateBearing(location.coords, pos.coords);
                     $s.direction = convertBearingToText(brng);
+
+                    pushNewPosition($s.speed, pos.timestamp);
+                    drawSpeedChart(convertToTable());
                 }
                 location = pos;
+                $s.$apply();
             });
         }, 5000);
     });
