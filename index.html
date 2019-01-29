@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.5/angular.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="http://vizjs.org/viz.v1.0.0.min.js"></script>
+</head>
+<body ng-app="SpeedTracer">
+    <div style="display:flex; justify-content:center">
+        <h1>Speed Tracer</h1>
+    </div>
+    <div ng-controller="window" class="container">
+        <div class="row">
+            <div class="col">
+                <div style="display:flex; justify-content:center">
+                    <button ng-show="state == 0" type="button" class="btn btn-success btn-lg" ng-click="start();">Start</button>
+                    <button ng-show="state == 1" type="button" class="btn btn-danger btn-lg" ng-click="stop();">Stop</button>
+                </div>
+                <div ng-controller="trace">
+                    <div class="box" style="display:flex; justify-content:center; flex-direction:column; text-align:center">
+                        <h2>Speed (mph)</h2>
+                        <h1>{{speed.toFixed(1)}}</h1>
+                        <svg width="345" height="300"></svg>
+                    </div>
+                    <div class="row" style="display:flex; justify-content:space-between; flex-direction:row">
+                        <div class="box col-5" style="display:flex; justify-content:center; flex-direction:column; text-align:center">
+                            <h4>Heading</h4>
+                            <h2>{{direction}}</h2>
+                        </div>
+                        <div class="box col-5" style="display:flex; justify-content:center; flex-direction:column; text-align:center">
+                            <h4>Distance (miles)</h4>
+                            <h2>{{distance.toFixed(1)}}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
